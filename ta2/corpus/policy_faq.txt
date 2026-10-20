@@ -1,0 +1,61 @@
+CHUNK: 1
+TOPIC: Duplicate Charge Refund Policy
+If a customer has been charged twice for the same subscription cycle, they are entitled to a full refund of the duplicate charge. The refund will be processed within 5 to 7 business days and credited back to the original payment method. Customers must report the duplicate charge within 60 days of the billing date. To initiate a refund, the billing team will verify the transaction history and confirm the duplicate before processing.
+
+---
+
+CHUNK: 2
+TOPIC: Subscription Cancellation Policy
+Customers wishing to cancel their subscription must provide 30 days written notice before their next billing cycle. Cancellations submitted after the billing date will take effect in the following cycle and no partial refunds are issued for the remaining period. Customers can cancel via the account settings page or by emailing billing@company.com. Accounts remain active until the end of the paid period even after cancellation.
+
+---
+
+CHUNK: 3
+TOPIC: App Crash Troubleshooting
+If the mobile app is crashing, customers should first try clearing the app cache and restarting the device. If the crash persists, uninstalling and reinstalling the latest version of the app usually resolves the issue. Customers should also ensure their device OS is up to date, as the app requires Android 10+ or iOS 14+. If none of these steps work, the technical team will need the device model, OS version, and the exact action that triggers the crash.
+
+---
+
+CHUNK: 4
+TOPIC: Login Issues and Password Reset
+If a customer cannot log in, they should first use the "Forgot Password" link on the login page to reset their credentials. If 2-factor authentication (2FA) is enabled and the customer has lost access to their authenticator app, they must contact technical support for a manual 2FA reset, which requires identity verification. Login issues can also occur if the account has been temporarily locked after 5 failed attempts; the lockout clears automatically after 30 minutes.
+
+---
+
+CHUNK: 5
+TOPIC: Premium Feature Activation After Payment
+After purchasing a premium upgrade, feature activation may take up to 24 hours to propagate across all devices. Customers should log out and log back in after 24 hours if premium features are not visible. If the issue persists beyond 24 hours, technical support will verify the account entitlement flag in the backend and manually trigger a sync. Customers should not attempt multiple purchases as duplicate charges may result.
+
+---
+
+CHUNK: 6
+TOPIC: Escalation Policy (Tier-1 to Tier-2 to Manager)
+Customer complaints are handled at three escalation tiers. Tier-1 agents handle standard billing and technical queries. If a Tier-1 agent cannot resolve the issue within one interaction, the case is escalated to Tier-2 specialists who have access to backend systems. Cases involving legal threats, fraud allegations, or repeated escalations within 30 days are automatically routed to a Manager. All escalations are logged and the customer is notified within 2 business hours.
+
+---
+
+CHUNK: 7
+TOPIC: SLA Commitments (Response Time Targets)
+Billing team SLA: initial response within 24 hours on business days; resolution within 5 business days for standard issues and 10 business days for disputes requiring investigation. Technical support SLA: initial response within 4 hours for critical (app down) issues and 24 hours for non-critical bugs. General support queries receive a response within 48 hours. SLA timers pause on weekends and public holidays.
+
+---
+
+CHUNK: 8
+TOPIC: Contact Information
+Billing inquiries: billing@company.com | Phone: 1-800-555-0100 (Mon–Fri, 9am–6pm EST)
+Technical support: tech@company.com | Live chat available 24/7 on the website
+General support: support@company.com | Response within 48 hours
+Urgent escalations: escalations@company.com | For legal, fraud, or Manager-level issues
+Mailing address: 123 Support Lane, Suite 400, San Francisco, CA 94105
+
+---
+
+CHUNK: 9
+TOPIC: Angry Customer Protocol
+When a customer expresses anger, frustration, or uses threatening language, the complaint must be immediately escalated to a Tier-2 agent or Manager. Automated or templated responses must not be sent to angry customers; a human must review and approve all outgoing communications. The agent must acknowledge the customer's frustration explicitly and avoid defensive language. If the customer mentions legal action or the word "lawyer", the case is flagged as HIGH PRIORITY and the legal team is notified within 1 business hour.
+
+---
+
+CHUNK: 10
+TOPIC: Data Privacy and GDPR Opt-Out
+Customers in the European Union have the right to request deletion of their personal data under GDPR Article 17. To submit a data deletion request, customers must email privacy@company.com with their account email and a government-issued ID for verification. Requests are processed within 30 days. Customers may also request a copy of their data (data portability) under GDPR Article 20. Marketing opt-outs take effect within 48 hours and can be managed in account settings under Privacy Preferences.

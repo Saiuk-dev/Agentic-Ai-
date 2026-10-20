@@ -1,0 +1,55 @@
+
+======================================================================
+  DEMO: U3-1 SHORT-TERM MEMORY — WITH checkpointer (thread_id='THREAD-MEM-DEMO')
+======================================================================
+  TURN 1: Customer files initial complaint with specific details.
+
+======================================================================
+  CASE: TURN 1 — Initial complaint with details
+======================================================================
+  Complaint  : I was double-charged $49.99 on invoice #8821 yesterday. Please refund the extra charge.
+  CustomerID : CUST_MEM01  |  ConvID: THREAD-MEM-DEMO  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST_MEM01 | history_loaded=False
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "I was double-charged $49.99 on invoice #8821 yesterday." This directly indicates a billing issue with an extra charge that needs to be refunded.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.9
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. We will review the transaction history to confirm the duplicate charge. According to our policy, we will process the refund within 5 to 7 business days and will credit the amount back to your original payment method. Please provide the invoice number #8821 for further verification.
+  [SQLite] Complaint stored for CUST_MEM01.
+
+  TURN 2: Follow-up in SAME thread — references invoice #8821 without repeating it.
+
+======================================================================
+  CASE: TURN 2 — Follow-up (WITH memory)
+======================================================================
+  Complaint  : Can you confirm what was the exact invoice number and dollar amount I just asked about?
+  CustomerID : CUST_MEM01  |  ConvID: THREAD-MEM-DEMO  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST_MEM01 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> The complaint specifically asks for confirmation of an invoice number and dollar amount, which pertains to billing inquiries.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.1
+
+  FINAL RESPONSE:
+  Agent (Billing): Thank you for your patience. We have noted your request for the invoice number #8821 and the dollar amount of $49.99. We will review the transaction history to confirm the duplicate charge and process the refund within 5 to 7 business days, crediting the amount back to your original payment method. Please expect the refund to be credited back to your account shortly.
+  [SQLite] Complaint stored for CUST_MEM01.

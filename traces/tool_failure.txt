@@ -1,0 +1,29 @@
+
+======================================================================
+  DEMO: U3-4 TOOL FAILURE — Injected classify exception
+======================================================================
+  Monkey-patching global llm_sampling to simulate Ollama connection failure.
+
+======================================================================
+  CASE: TOOL FAILURE CASE
+======================================================================
+  Complaint  : I need urgent help with my billing statement.
+  CustomerID : CUST001  |  ConvID: CONV-FAIL  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [classify_node] !! TOOL ERROR: Simulated Ollama timeout — connection refused.
+  [failure_handler] Recovering from tool error.
+
+  Vote breakdown     -> 
+  Classified as      -> general
+  Classifier reason  -> 
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 0
+  Wall-clock (s)     -> 0.4
+
+  FINAL RESPONSE:
+  We're currently experiencing a technical difficulty processing your request. A support agent will review your complaint and respond within 24 hours. [Error details (internal): Simulated Ollama timeout — connection refused.]
+  [failure demo] Original llm_sampling restored.

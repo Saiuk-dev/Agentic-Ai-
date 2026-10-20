@@ -1,0 +1,50 @@
+﻿======================================================================
+CASE: BILLING (clean)
+Complaint: You charged me twice for my monthly subscription this cycle, please refund the duplicate charge.
+----------------------------------------------------------------------
+Vote breakdown -> billing:3
+Classified as  -> billing
+Classifier reasoning -> The complaint mentions a duplicate charge for a monthly subscription, which is related to billing issues.
+Routed to      -> billing
+Final response -> Thank you for bringing this to our attention. I will immediately check the billing records to confirm the duplicate charge and initiate the refund process.
+
+======================================================================
+CASE: TECHNICAL (clean)
+Complaint: The app crashes every time I try to upload a profile photo on Android.
+----------------------------------------------------------------------
+Vote breakdown -> technical:3
+Classified as  -> technical
+Classifier reasoning -> "The app crashes every time I try to upload a profile photo on Android."
+Routed to      -> technical
+Final response -> Thank you for reaching out. We appreciate you reporting this issue. Could you please provide the error message you receive or the device model you are using?
+
+======================================================================
+CASE: GENERAL (clean)
+Complaint: I just wanted to say the new dashboard redesign looks great, nice work.
+----------------------------------------------------------------------
+Vote breakdown -> general:3
+Classified as  -> general
+Classifier reasoning -> "I just wanted to say the new dashboard redesign looks great, nice work."
+Routed to      -> general
+Final response -> Thank you for your positive feedback! We appreciate your kind words. A team member will reach out to you shortly to ensure everything is to your satisfaction.
+
+======================================================================
+CASE: AMBIGUOUS (premium upgrade)
+Complaint: I was charged for the premium upgrade but the premium features never turned on -- is this a billing mistake or did it just not activate?
+----------------------------------------------------------------------
+Vote breakdown -> billing:3
+Classified as  -> billing
+Classifier reasoning -> "I was charged for the premium upgrade but the premium features never turned on"
+Routed to      -> billing
+Final response -> Thank you for bringing this to our attention. I will first check the status of your account to confirm the premium upgrade was processed correctly and then verify if the activation of the features was delayed or if there was any issue with the setup.
+
+======================================================================
+CASE: AMBIGUOUS (account access)
+Complaint: I can't get into my account and I'm not sure if it's because my payment failed or because of a login bug on your site.
+----------------------------------------------------------------------
+Vote breakdown -> billing:3
+Classified as  -> billing
+Classifier reasoning -> "I can't get into my account and I'm not sure if it's because my payment failed or because of a login bug on your site." The confusion about whether the issue is with the payment or the login suggests a billing concern, as payment failures are typically a billing issue.
+Routed to      -> billing
+Final response -> Thank you for reaching out. I will first check the status of your payment to confirm if it was unsuccessful, and then I will also verify if there are any issues with your login credentials on our site.
+

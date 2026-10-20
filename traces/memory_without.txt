@@ -1,0 +1,29 @@
+
+======================================================================
+  DEMO: U3-1 SHORT-TERM MEMORY — WITHOUT checkpointer (AMNESIA)
+======================================================================
+  TURN 2 sent without thread_id or checkpoint state — agent suffers amnesia.
+
+======================================================================
+  CASE: TURN 2 — Follow-up (WITHOUT memory — AMNESIA)
+======================================================================
+  Complaint  : Can you confirm what was the exact invoice number and dollar amount I just asked about?
+  CustomerID : CUST_AMNESIA_ANON  |  ConvID: NO-THREAD  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST_AMNESIA_ANON | history_loaded=False
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "Can you confirm what was the exact invoice number and dollar amount I just asked about?" This directly relates to a billing inquiry as it pertains to specific invoice details.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.8
+
+  FINAL RESPONSE:
+  Hello, thank you for reaching out. I will need to check the transaction history to confirm the exact invoice number and amount you are referring to. According to our policy, we will process a full refund for any duplicate charges within 5 to 7 business days. Please let me know the specific invoice details so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST_AMNESIA_ANON.

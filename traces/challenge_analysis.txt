@@ -1,0 +1,17 @@
+
+======================================================================
+  U4-4 CHALLENGE ANALYSIS — LLM calls, wall-clock time, hop counts
+======================================================================
+  Case                          LLM calls   Hops  Escalated
+  ---------------------------- ---------- ------ ----------
+  Billing (clean)                       4      1         no
+  Technical (clean)                     4      1         no
+  General (clean)                       4      1         no
+  Ambiguous (premium)                   4      1         no
+  Ambiguous (account)                   4      1         no
+  Angry (billing)                       4      1        YES
+
+  Observations:
+  1. Clean cases: 1 hop, 4 LLM calls (3 sampling + 1 generation).
+  2. Ambiguous & Angry cases: route to specialist and escalate to human review.
+  3. Hop limit of MAX_HOPS=3 enforces boundary preventing infinite routing loops.

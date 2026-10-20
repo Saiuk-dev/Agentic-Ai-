@@ -1,0 +1,530 @@
+﻿======================================================================
+  TA2 ù Customer Complaint Triage Graph (Extended)
+  Mode: AUTO-APPROVE (trace)
+======================================================================
+[seed_db] Tables initialised (or already exist).
+
+>>> SECTION 1: Main test cases (6 complaints)
+
+
+======================================================================
+  CASE: BILLING (clean)
+======================================================================
+  Complaint  : You charged me twice for my monthly subscription this cycle, please refund the duplicate charge.
+  CustomerID : CUST001  |  ConvID: CONV-B01  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "You charged me twice for my monthly subscription this cycle, please refund the duplicate charge."
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.0
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. I have noted your complaint and will first check the transaction history to verify the duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+======================================================================
+  CASE: TECHNICAL (clean)
+======================================================================
+  Complaint  : The app crashes every time I try to upload a profile photo on Android.
+  CustomerID : CUST002  |  ConvID: CONV-T01  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST002 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [technical_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> technical:3
+  Classified as      -> technical
+  Classifier reason  -> "The app crashes every time I try to upload a profile photo on Android."
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.5
+
+  FINAL RESPONSE:
+  Thank you for reaching out. Could you please provide the model of your device, the OS version, and the exact error message you receive when the app crashes? Clearing the app cache and restarting your device are the first steps we recommend.
+  [SQLite] Complaint stored for CUST002.
+
+======================================================================
+  CASE: GENERAL (clean)
+======================================================================
+  Complaint  : I just wanted to say the new dashboard redesign looks great, nice work.
+  CustomerID : CUST003  |  ConvID: CONV-G01  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST003 | history_loaded=False
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [general_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> general:3
+  Classified as      -> general
+  Classifier reason  -> "I just wanted to say the new dashboard redesign looks great, nice work."
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.3
+
+  FINAL RESPONSE:
+  Thank you for your feedback! We appreciate your positive comment about the new dashboard redesign. If you have any other questions or need assistance with anything else, feel free to let us know.
+  [SQLite] Complaint stored for CUST003.
+
+======================================================================
+  CASE: AMBIGUOUS ù premium upgrade
+======================================================================
+  Complaint  : I was charged for the premium upgrade but the premium features never turned on ù is this a billing mistake or did it just not activate?
+  CustomerID : CUST001  |  ConvID: CONV-A01  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "I was charged for the premium upgrade but the premium features never turned on" directly relates to a billing issue where the customer paid for a service but did not receive the expected features, which suggests a mistake in billing or activation.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.6
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. I have noted your complaint and will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+======================================================================
+  CASE: AMBIGUOUS ù account access
+======================================================================
+  Complaint  : I can't get into my account and I'm not sure if it's because my payment failed or because of a login bug on your site.
+  CustomerID : CUST002  |  ConvID: CONV-A02  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST002 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [technical_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> technical:3
+  Classified as      -> technical
+  Classifier reason  -> "I can't get into my account and I'm not sure if it's because my payment failed or because of a login bug on your site." This directly mentions issues with logging in, categorizing it under technical.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.3
+
+  FINAL RESPONSE:
+  Thank you for reaching out. Could you please provide the model of your device, the OS version, and the exact error message you receive when the app crashes? Clearing the app cache and restarting your device are the first steps we recommend.
+  [SQLite] Complaint stored for CUST002.
+
+======================================================================
+  CASE: ANGRY ù billing dispute
+======================================================================
+  Complaint  : This is absolutely unacceptable! You charged me three times and I've been ignored for two weeks. I am furious and will contact my lawyer if this isn't fixed TODAY.
+  CustomerID : CUST001  |  ConvID: CONV-ANGRY  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=True | reason=Anger keywords detected in complaint.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] *** HUMAN REVIEW REQUIRED ***
+  Reason:    Anger keywords detected in complaint.
+  Customer:  CUST001
+  Complaint: This is absolutely unacceptable! You charged me three times and I've been ignored for two weeks. I am furious and will contact my lawyer if this isn't fixed TODAY.
+  Draft response:
+    Thank you for bringing this to our attention, CUST001. I understand your frustration. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] AUTO-APPROVE mode: injecting decision = 'REJECT: Escalate to senior billing team ù customer flagged as high priority.'
+  [human_review] Decision: REJECTED ù reason: Escalate to senior billing team ù customer flagged as high priority.
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "You charged me three times" directly relates to payment issues and customer billing concerns.
+  Escalated          -> True  |  Human decision: REJECT: Escalate to senior billing team ù customer flagged as high priority.
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.9
+
+  FINAL RESPONSE:
+  Thank you for your patience. Your complaint has been escalated to our senior team. A specialist will contact you via your preferred channel within 4 business hours. [Internal note: Escalate to senior billing team ù customer flagged as high priority.]
+  [SQLite] Complaint stored for CUST001.
+
+>>> SECTION 2: Short-term memory demo (U3-1)
+
+
+======================================================================
+  DEMO: U3-1 SHORT-TERM MEMORY ù WITH checkpointer (thread_id='THREAD-MEM-DEMO')
+======================================================================
+  TURN 1: Customer files initial complaint with specific details.
+
+======================================================================
+  CASE: TURN 1 ù Initial complaint with details
+======================================================================
+  Complaint  : I was double-charged $49.99 on invoice #8821 yesterday. Please refund the extra charge.
+  CustomerID : CUST_MEM01  |  ConvID: THREAD-MEM-DEMO  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST_MEM01 | history_loaded=False
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "I was double-charged $49.99 on invoice #8821 yesterday. Please refund the extra charge."
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.7
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. We will first review the transaction history to confirm the duplicate charge. According to our policy, we will process the refund within 5 to 7 business days. Please provide the invoice number #8821 for further verification.
+  [SQLite] Complaint stored for CUST_MEM01.
+
+  TURN 2: Follow-up in SAME thread ù references invoice #8821 without repeating it.
+
+======================================================================
+  CASE: TURN 2 ù Follow-up (WITH memory)
+======================================================================
+  Complaint  : Can you confirm what was the exact invoice number and dollar amount I just asked about?
+  CustomerID : CUST_MEM01  |  ConvID: THREAD-MEM-DEMO  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST_MEM01 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "Can you confirm what was the exact invoice number and dollar amount I just asked about?" This directly relates to invoice inquiries, which falls under the billing category.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.0
+
+  FINAL RESPONSE:
+  Agent (Billing): Thank you for your patience. We have noted your request for the invoice number #8821 and the dollar amount of $49.99. We will review the transaction history to confirm the duplicate charge and process the refund within 5 to 7 business days. Please expect the refund to be credited back to your original payment method.
+  [SQLite] Complaint stored for CUST_MEM01.
+
+
+======================================================================
+  DEMO: U3-1 SHORT-TERM MEMORY ù WITHOUT checkpointer (AMNESIA)
+======================================================================
+  TURN 2 sent without thread_id or checkpoint state ù agent suffers amnesia.
+
+======================================================================
+  CASE: TURN 2 ù Follow-up (WITHOUT memory ù AMNESIA)
+======================================================================
+  Complaint  : Can you confirm what was the exact invoice number and dollar amount I just asked about?
+  CustomerID : CUST_AMNESIA_ANON  |  ConvID: NO-THREAD  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST_AMNESIA_ANON | history_loaded=False
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "Can you confirm what was the exact invoice number and dollar amount I just asked about?" - This inquiry is specifically about billing details, hence it falls under the billing category.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.7
+
+  FINAL RESPONSE:
+  Hello, thank you for reaching out. I will need to check the transaction history to confirm the exact invoice number and amount you are referring to. According to our policy, we will process a full refund for any duplicate charges within 5 to 7 business days. Please let me know the specific invoice details so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST_AMNESIA_ANON.
+
+
+>>> SECTION 3: Long-term memory / restart demo (U3-2)
+
+
+======================================================================
+  DEMO: U3-2 LONG-TERM MEMORY ù Restart demo
+======================================================================
+  [Restart demo] Simulating a fresh process start ù loading profile from SQLite...
+  Profile loaded: {'customer_id': 'CUST001', 'namespace': 'profile', 'preferred_channel': 'email', 'complaint_count': 5, 'last_category': 'billing', 'notes': 'Repeat billing issue; refund issued 2024-09.'}
+  History loaded:
+[Prior complaint history for customer CUST001]
+  [2026-10-19 16:50:25] Category=billing
+  Complaint: You charged me twice for my monthly subscription this cycle, please refund the duplicate charge.
+  Agent response: Thank you for bringing this to our attention. I have noted your complaint and will first check the transaction history to verify the duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [2026-10-19 16:50:34] Category=billing
+  Complaint: I was charged for the premium upgrade but the premium features never turned on ù is this a billing mistake or did it just not activate?
+  Agent response: Thank you for bringing this to our attention. I have noted your complaint and will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [2026-10-19 16:50:40] Category=billing
+  Complaint: This is absolutely unacceptable! You charged me three times and I've been ignored for two weeks. I am furious and will contact my lawyer if this isn't fixed TODAY.
+  Agent response: Thank you for your patience. Your complaint has been escalated to our senior team. A specialist will contact you via your preferred channel within 4 business hours. [Internal note: Escalate to senior billing team ù customer flagged as high priority.]
+  NOTE: This profile and past complaints survived a process restart.
+  Running a new complaint for CUST001 with pre-loaded history context...
+
+======================================================================
+  CASE: RESTART DEMO ù new complaint with prior history
+======================================================================
+  Complaint  : My invoice this month looks wrong again.
+  CustomerID : CUST001  |  ConvID: CONV-RESTART  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "My invoice this month looks wrong again." This directly relates to a payment or billing issue.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.8
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+
+>>> SECTION 4: RAG k=1 vs k=3 + unanswerable (U3-3)
+
+
+======================================================================
+  DEMO: U3-3 RAG ù k=1 vs k=3 comparison
+======================================================================
+  Same complaint routed twice ù once with k=1, once with k=3.
+  Notice difference in retrieved FAQ context.
+
+
+======================================================================
+  CASE: RAG k=1
+======================================================================
+  Complaint  : My refund for the duplicate charge hasn't arrived yet ù how long does it take?
+  CustomerID : CUST001  |  ConvID: CONV-RAG-K1  |  RAG k=1
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=1 | chunks_retrieved=2
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> The complaint specifically mentions a "refund for the duplicate charge," which relates to a payment issue.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.3
+
+  FINAL RESPONSE:
+  Thank you for your patience. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+======================================================================
+  CASE: RAG k=3
+======================================================================
+  Complaint  : My refund for the duplicate charge hasn't arrived yet ù how long does it take?
+  CustomerID : CUST001  |  ConvID: CONV-RAG-K3  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "My refund for the duplicate charge hasn't arrived yet ù how long does it take?" This sentence directly relates to a billing issue as it concerns a delayed refund for a duplicate charge.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.6
+
+  FINAL RESPONSE:
+  Thank you for your patience. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+======================================================================
+  DEMO: U3-3 RAG ù Unanswerable question (grounded fallback test)
+======================================================================
+
+======================================================================
+  CASE: RAG UNANSWERABLE
+======================================================================
+  Complaint  : What is your company's stock ticker symbol on the NASDAQ?
+  CustomerID : CUST003  |  ConvID: CONV-UNANSWERABLE  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST003 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [general_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> general:3
+  Classified as      -> general
+  Classifier reason  -> The question is asking for information about the company's stock ticker symbol on the NASDAQ, which is not related to billing, technical issues, or any other specific category.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.4
+
+  FINAL RESPONSE:
+  I don't know based on our documentation. For any other questions or assistance, please feel free to let us know.
+  [SQLite] Complaint stored for CUST003.
+
+
+>>> SECTION 5: Tool failure + recovery (U3-4)
+
+
+======================================================================
+  DEMO: U3-4 TOOL FAILURE ù Injected classify exception
+======================================================================
+  Monkey-patching global llm_sampling to simulate Ollama connection failure.
+
+======================================================================
+  CASE: TOOL FAILURE CASE
+======================================================================
+  Complaint  : I need urgent help with my billing statement.
+  CustomerID : CUST001  |  ConvID: CONV-FAIL  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [classify_node] !! TOOL ERROR: Simulated Ollama timeout ù connection refused.
+  [failure_handler] Recovering from tool error.
+
+  Vote breakdown     -> 
+  Classified as      -> general
+  Classifier reason  -> 
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 0
+  Wall-clock (s)     -> 0.6
+
+  FINAL RESPONSE:
+  We're currently experiencing a technical difficulty processing your request. A support agent will review your complaint and respond within 24 hours. [Error details (internal): Simulated Ollama timeout ù connection refused.]
+  [failure demo] Original llm_sampling restored.
+
+
+>>> SECTION 6: Oversight ù Approved vs Rejected paths (U4-3)
+
+
+======================================================================
+  DEMO: U4-3 OVERSIGHT ù APPROVED PATH
+======================================================================
+  Complaint triggers human review; human reviewer reviews draft and enters 'APPROVE'.
+
+======================================================================
+  CASE: HITL ù Approved Path
+======================================================================
+  Complaint  : I was charged for premium upgrade but the features never unlocked.
+  CustomerID : CUST001  |  ConvID: CONV-HITL-APPR  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=True | reason=Selected for supervisory quality audit & human approval.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] *** HUMAN REVIEW REQUIRED ***
+  Reason:    Selected for supervisory quality audit & human approval.
+  Customer:  CUST001
+  Complaint: I was charged for premium upgrade but the features never unlocked.
+  Draft response:
+    Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] Programmatic decision override: 'APPROVE'
+  [human_review] Decision: APPROVED ù sending draft to customer.
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "I was charged for premium upgrade but the features never unlocked." This sentence directly relates to a payment issue where a user was charged for a service upgrade but did not receive the expected features, which is a billing-related problem.
+  Escalated          -> True  |  Human decision: APPROVE
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.7
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+
+======================================================================
+  DEMO: U4-3 OVERSIGHT ù REJECTED PATH
+======================================================================
+  Angry complaint triggers human review; human reviewer enters 'REJECT: Customer threatening lawsuit. Forwarding to Legal.'
+
+======================================================================
+  CASE: HITL ù Rejected Path
+======================================================================
+  Complaint  : You charged me three times! I am furious and contacting my lawyer immediately!
+  CustomerID : CUST001  |  ConvID: CONV-HITL-REJ  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=True | reason=Anger keywords detected in complaint.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] *** HUMAN REVIEW REQUIRED ***
+  Reason:    Anger keywords detected in complaint.
+  Customer:  CUST001
+  Complaint: You charged me three times! I am furious and contacting my lawyer immediately!
+  Draft response:
+    Thank you for bringing this to our attention, CUST001. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] Programmatic decision override: 'REJECT: Customer threatening lawsuit. Forwarding to Legal.'
+  [human_review] Decision: REJECTED ù reason: Customer threatening lawsuit. Forwarding to Legal.
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "You charged me three times! I am furious and contacting my lawyer immediately!" This complaint directly relates to billing issues as the customer is complaining about being charged multiple times.
+  Escalated          -> True  |  Human decision: REJECT: Customer threatening lawsuit. Forwarding to Legal.
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.7
+
+  FINAL RESPONSE:
+  Thank you for your patience. Your complaint has been escalated to our senior team. A specialist will contact you via your preferred channel within 4 business hours. [Internal note: Customer threatening lawsuit. Forwarding to Legal.]
+  [SQLite] Complaint stored for CUST001.
+
+
+>>> SECTION 7: Challenge analysis table (U4-4)
+
+
+======================================================================
+  U4-4 CHALLENGE ANALYSIS ù LLM calls, wall-clock time, hop counts
+======================================================================
+  Case                          LLM calls   Hops  Escalated
+  ---------------------------- ---------- ------ ----------
+  Billing (clean)                       4      1         no
+  Technical (clean)                     4      1         no
+  General (clean)                       4      1         no
+  Ambiguous (premium)                   4      1         no
+  Ambiguous (account)                   4      1         no
+  Angry (billing)                       4      1        YES
+
+  Observations:
+  1. Clean cases: 1 hop, 4 LLM calls (3 sampling + 1 generation).
+  2. Ambiguous & Angry cases: route to specialist and escalate to human review.
+  3. Hop limit of MAX_HOPS=3 enforces boundary preventing infinite routing loops.
+
+
+======================================================================
+  TA2 execution completed successfully.
+  All individual trace files saved into: C:\Users\sai ukarande\.gemini\antigravity\scratch\GroupNN_Division_Topic_TA2\traces
+======================================================================

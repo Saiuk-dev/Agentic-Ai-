@@ -1,0 +1,83 @@
+
+======================================================================
+  DEMO: U3-3 RAG — k=1 vs k=3 comparison
+======================================================================
+  Same complaint routed twice — once with k=1, once with k=3.
+  Notice difference in retrieved FAQ context.
+
+
+======================================================================
+  CASE: RAG k=1
+======================================================================
+  Complaint  : My refund for the duplicate charge hasn't arrived yet — how long does it take?
+  CustomerID : CUST001  |  ConvID: CONV-RAG-K1  |  RAG k=1
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=1 | chunks_retrieved=2
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> The complaint directly relates to a refund for a duplicate charge, which falls under the category of billing issues.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.1
+
+  FINAL RESPONSE:
+  Thank you for your patience. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+======================================================================
+  CASE: RAG k=3
+======================================================================
+  Complaint  : My refund for the duplicate charge hasn't arrived yet — how long does it take?
+  CustomerID : CUST001  |  ConvID: CONV-RAG-K3  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> The complaint mentions a refund for a duplicate charge, which falls under the category of billing.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.0
+
+  FINAL RESPONSE:
+  Thank you for your patience. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
+
+======================================================================
+  DEMO: U3-3 RAG — Unanswerable question (grounded fallback test)
+======================================================================
+
+======================================================================
+  CASE: RAG UNANSWERABLE
+======================================================================
+  Complaint  : What is your company's stock ticker symbol on the NASDAQ?
+  CustomerID : CUST003  |  ConvID: CONV-UNANSWERABLE  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST003 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=12
+  [classify_node] hop=1/3
+  [general_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> general:3
+  Classified as      -> general
+  Classifier reason  -> The complaint is completely unrelated to billing or technical issues; it is a simple question seeking information about a company's stock ticker, which falls under the 'general' category.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.4
+
+  FINAL RESPONSE:
+  I don't know based on our documentation. For any other questions or assistance, please feel free to let us know.
+  [SQLite] Complaint stored for CUST003.

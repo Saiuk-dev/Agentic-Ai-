@@ -1,0 +1,43 @@
+
+======================================================================
+  DEMO: U3-2 LONG-TERM MEMORY — Restart demo
+======================================================================
+  [Restart demo] Simulating a fresh process start — loading profile from SQLite...
+  Profile loaded: {'customer_id': 'CUST001', 'namespace': 'profile', 'preferred_channel': 'email', 'complaint_count': 5, 'last_category': 'billing', 'notes': 'Repeat billing issue; refund issued 2024-09.'}
+  History loaded:
+[Prior complaint history for customer CUST001]
+  [2026-10-19 18:23:37] Category=billing
+  Complaint: You charged me twice for my monthly subscription this cycle, please refund the duplicate charge.
+  Agent response: Thank you for bringing this to our attention. I have noted your complaint and will first check the transaction history to verify the duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [2026-10-19 18:23:46] Category=billing
+  Complaint: I was charged for the premium upgrade but the premium features never turned on — is this a billing mistake or did it just not activate?
+  Agent response: Thank you for bringing this to our attention. I have noted your complaint and will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [2026-10-19 18:23:52] Category=billing
+  Complaint: This is absolutely unacceptable! You charged me three times and I've been ignored for two weeks. I am furious and will contact my lawyer if this isn't fixed TODAY.
+  Agent response: Thank you for your patience. Your complaint has been escalated to our senior team. A specialist will contact you via your preferred channel within 4 business hours. [Internal note: Escalate to senior billing team — customer flagged as high priority.]
+  NOTE: This profile and past complaints survived a process restart.
+  Running a new complaint for CUST001 with pre-loaded history context...
+
+======================================================================
+  CASE: RESTART DEMO — new complaint with prior history
+======================================================================
+  Complaint  : My invoice this month looks wrong again.
+  CustomerID : CUST001  |  ConvID: CONV-RESTART  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=False | reason=none
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "My invoice this month looks wrong again." This directly relates to a payment-related issue.
+  Escalated          -> False  |  Human decision: 
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 2.9
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.

@@ -1,0 +1,40 @@
+
+======================================================================
+  DEMO: U4-3 OVERSIGHT — APPROVED PATH
+======================================================================
+  Complaint triggers human review; human reviewer reviews draft and enters 'APPROVE'.
+
+======================================================================
+  CASE: HITL — Approved Path
+======================================================================
+  Complaint  : I was charged for premium upgrade but the features never unlocked.
+  CustomerID : CUST001  |  ConvID: CONV-HITL-APPR  |  RAG k=3
+----------------------------------------------------------------------
+  [load_history_node] customer=CUST001 | history_loaded=True
+  [rag_node] k=3 | chunks_retrieved=8
+  [classify_node] hop=1/3
+  [billing_agent] Response generated.
+  [escalation_check] escalated=True | reason=Selected for supervisory quality audit & human approval.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] *** HUMAN REVIEW REQUIRED ***
+  Reason:    Selected for supervisory quality audit & human approval.
+  Customer:  CUST001
+  Complaint: I was charged for premium upgrade but the features never unlocked.
+  Draft response:
+    Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  [human_review] Programmatic decision override: 'APPROVE'
+  [human_review] Decision: APPROVED — sending draft to customer.
+
+  Vote breakdown     -> billing:3
+  Classified as      -> billing
+  Classifier reason  -> "I was charged for premium upgrade but the features never unlocked." This directly relates to a billing issue as it involves payment for a service that did not provide the expected features.
+  Escalated          -> True  |  Human decision: APPROVE
+  Hop count          -> 1
+  LLM calls          -> 4
+  Wall-clock (s)     -> 3.7
+
+  FINAL RESPONSE:
+  Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+  [SQLite] Complaint stored for CUST001.
