@@ -22,7 +22,7 @@
   Customer:  CUST001
   Complaint: You charged me three times! I am furious and contacting my lawyer immediately!
   Draft response:
-    Thank you for bringing this to our attention, CUST001. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
+    I apologize for the inconvenience you've experienced, CUST001. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund. Please note that this is the next step in our process, and we will handle your request promptly.
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   [human_review] Programmatic decision override: 'REJECT: Customer threatening lawsuit. Forwarding to Legal.'
   [human_review] Decision: REJECTED — reason: Customer threatening lawsuit. Forwarding to Legal.
@@ -33,7 +33,7 @@
   Escalated          -> True  |  Human decision: REJECT: Customer threatening lawsuit. Forwarding to Legal.
   Hop count          -> 1
   LLM calls          -> 4
-  Wall-clock (s)     -> 2.8
+  Wall-clock (s)     -> 5.3
 
   FINAL RESPONSE:
   Thank you for your patience. Your complaint has been escalated to our senior team. A specialist will contact you via your preferred channel within 4 business hours. [Internal note: Customer threatening lawsuit. Forwarding to Legal.]

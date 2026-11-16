@@ -4,3 +4,7 @@ __pycache__/
 .vscode/
 .idea/
 *.log
+*.db-shm
+*.db-wal
+ta2/checkpoints.db
+ta2/chroma_db/

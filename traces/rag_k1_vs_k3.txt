@@ -20,11 +20,11 @@
 
   Vote breakdown     -> billing:3
   Classified as      -> billing
-  Classifier reason  -> The complaint directly relates to a refund for a duplicate charge, which falls under the category of billing issues.
+  Classifier reason  -> "My refund for the duplicate charge hasn't arrived yet" directly relates to a refund issue, which falls under the billing category.
   Escalated          -> False  |  Human decision: 
   Hop count          -> 1
   LLM calls          -> 4
-  Wall-clock (s)     -> 3.1
+  Wall-clock (s)     -> 5.2
 
   FINAL RESPONSE:
   Thank you for your patience. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
@@ -44,11 +44,11 @@
 
   Vote breakdown     -> billing:3
   Classified as      -> billing
-  Classifier reason  -> The complaint mentions a refund for a duplicate charge, which falls under the category of billing.
+  Classifier reason  -> "My refund for the duplicate charge hasn't arrived yet" directly relates to a payment issue and the status of a refund, which falls under the billing category.
   Escalated          -> False  |  Human decision: 
   Hop count          -> 1
   LLM calls          -> 4
-  Wall-clock (s)     -> 3.0
+  Wall-clock (s)     -> 7.4
 
   FINAL RESPONSE:
   Thank you for your patience. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.
@@ -72,12 +72,12 @@
 
   Vote breakdown     -> general:3
   Classified as      -> general
-  Classifier reason  -> The complaint is completely unrelated to billing or technical issues; it is a simple question seeking information about a company's stock ticker, which falls under the 'general' category.
+  Classifier reason  -> The question is clearly a request for information about the company's stock, which falls under the category of general inquiries.
   Escalated          -> False  |  Human decision: 
   Hop count          -> 1
   LLM calls          -> 4
-  Wall-clock (s)     -> 2.4
+  Wall-clock (s)     -> 3.6
 
   FINAL RESPONSE:
-  I don't know based on our documentation. For any other questions or assistance, please feel free to let us know.
+  I don't know based on our documentation. However, if you have any other questions or need assistance with something else, please feel free to let us know.
   [SQLite] Complaint stored for CUST003.

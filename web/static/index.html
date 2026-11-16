@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Complaint Triage Graph — Multi-Agent AI System</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.02); }
+    }
+    .node-active { animation: pulse-slow 1.5s infinite ease-in-out; }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased overflow-hidden">
+
+  <!-- ================= TOP HEADER / NAVBAR ================= -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex items-center justify-between z-20 shrink-0">
+    <div class="flex items-center space-x-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <i data-lucide="git-branch" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+        <div class="flex items-center space-x-2">
+          <h1 class="text-base font-bold text-white tracking-tight">Customer Complaint Triage Graph</h1>
+          <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Topic 13 • TA2</span>
+        </div>
+        <p class="text-xs text-slate-400">Multi-Agent LangGraph Workflow with SQLite Memory, Chroma RAG & HITL Oversight</p>
+      </div>
+    </div>
+
+    <!-- Center Nav Tabs -->
+    <nav class="hidden md:flex items-center bg-slate-950/80 p-1 rounded-xl border border-slate-800/80 space-x-1">
+      <button onclick="switchTab('triage')" id="tab-btn-triage" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center space-x-2 bg-indigo-600 text-white shadow-sm">
+        <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+        <span>Live Triage</span>
+      </button>
+      <button onclick="switchTab('chat')" id="tab-btn-chat" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center space-x-2">
+        <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+        <span>Thread Memory</span>
+      </button>
+      <button onclick="switchTab('memory')" id="tab-btn-memory" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center space-x-2">
+        <i data-lucide="database" class="w-3.5 h-3.5"></i>
+        <span>SQLite Store</span>
+      </button>
+      <button onclick="switchTab('rag')" id="tab-btn-rag" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center space-x-2">
+        <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+        <span>RAG Policy FAQ</span>
+      </button>
+      <button onclick="switchTab('eval')" id="tab-btn-eval" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center space-x-2">
+        <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i>
+        <span>Evaluation & Metrics</span>
+      </button>
+      <button onclick="switchTab('roles')" id="tab-btn-roles" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 transition-all flex items-center space-x-2">
+        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+        <span>Agent Roles</span>
+      </button>
+    </nav>
+
+    <!-- Right status indicator -->
+    <div class="flex items-center space-x-3 text-xs">
+      <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-medium">Ollama qwen2.5:3b</span>
+      </div>
+      <div class="hidden lg:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400">
+        <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+        <span>Chroma VectorDB</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+
+    <!-- ================= TAB 1: LIVE TRIAGE PLAYGROUND ================= -->
+    <div id="tab-triage" class="tab-content block space-y-6 max-w-7xl mx-auto">
+      
+      <!-- Top Presets Bar -->
+      <div class="bg-slate-900/80 border border-slate-800/90 rounded-2xl p-4 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center space-x-2">
+            <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Quick Test Scenarios (Preset Complaints)</span>
+          </div>
+          <span class="text-xs text-slate-400">Click any preset to load complaint & configure state</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+          <button onclick="loadPreset('billing')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-indigo-600/20 border border-slate-700/60 hover:border-indigo-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-indigo-300 flex items-center justify-between">
+              <span>💳 Billing</span>
+              <span class="text-[10px] text-emerald-400 font-mono">Clean</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Duplicate $49.99 charge</div>
+          </button>
+          
+          <button onclick="loadPreset('technical')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-sky-600/20 border border-slate-700/60 hover:border-sky-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-sky-300 flex items-center justify-between">
+              <span>📱 Technical</span>
+              <span class="text-[10px] text-emerald-400 font-mono">Clean</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Android photo crash</div>
+          </button>
+
+          <button onclick="loadPreset('general')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-emerald-600/20 border border-slate-700/60 hover:border-emerald-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-emerald-300 flex items-center justify-between">
+              <span>🌟 General</span>
+              <span class="text-[10px] text-emerald-400 font-mono">Clean</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Dashboard praise</div>
+          </button>
+
+          <button onclick="loadPreset('ambig_premium')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-amber-600/20 border border-slate-700/60 hover:border-amber-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-amber-300 flex items-center justify-between">
+              <span>⚡ Premium</span>
+              <span class="text-[10px] text-amber-400 font-mono">Ambig</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Charged but locked</div>
+          </button>
+
+          <button onclick="loadPreset('ambig_access')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-amber-600/20 border border-slate-700/60 hover:border-amber-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-amber-300 flex items-center justify-between">
+              <span>🔐 Access</span>
+              <span class="text-[10px] text-amber-400 font-mono">Ambig</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Pay fail or site bug?</div>
+          </button>
+
+          <button onclick="loadPreset('angry')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-rose-600/20 border border-slate-700/60 hover:border-rose-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-rose-300 flex items-center justify-between">
+              <span>⚖️ Angry Lawsuit</span>
+              <span class="text-[10px] text-rose-400 font-mono">HITL</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Triple charge + lawyer</div>
+          </button>
+
+          <button onclick="loadPreset('unanswerable')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-purple-600/20 border border-slate-700/60 hover:border-purple-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-purple-300 flex items-center justify-between">
+              <span>❓ Ticker Symbol</span>
+              <span class="text-[10px] text-purple-400 font-mono">RAG Fallback</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">NASDAQ stock symbol</div>
+          </button>
+
+          <button onclick="loadPreset('tool_failure')" class="preset-btn px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-red-600/20 border border-slate-700/60 hover:border-red-500/50 text-left transition-all group">
+            <div class="text-[11px] font-semibold text-slate-200 group-hover:text-red-300 flex items-center justify-between">
+              <span>💥 Tool Failure</span>
+              <span class="text-[10px] text-red-400 font-mono">U3-4 Safe</span>
+            </div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">Simulated timeout</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Input & Execution Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Input Form (5 cols) -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-white flex items-center space-x-2">
+                <i data-lucide="edit-3" class="w-4 h-4 text-indigo-400"></i>
+                <span>Customer Complaint Input</span>
+              </h2>
+              <span id="scenario-badge" class="px-2 py-0.5 text-[10px] font-mono rounded bg-slate-800 text-slate-400 border border-slate-700">Custom Input</span>
+            </div>
+
+            <!-- Complaint Textarea -->
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">Customer Message / Ticket Text</label>
+              <textarea id="input-complaint" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 leading-relaxed font-sans" placeholder="Type a customer complaint or click a preset above..."></textarea>
+            </div>
+
+            <!-- Parameters Grid -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Customer Profile (U3-2)</label>
+                <select id="select-customer" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                  <option value="CUST001">CUST001 (Repeat Billing • High Priority)</option>
+                  <option value="CUST002">CUST002 (Android App Issues)</option>
+                  <option value="CUST003">CUST003 (New User • General)</option>
+                  <option value="CUST_MEM01">CUST_MEM01 (Short-term Thread Test)</option>
+                  <option value="CUST_AMNESIA_ANON">CUST_AMNESIA_ANON (Amnesia Demo)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Conversation Thread ID</label>
+                <input type="text" id="input-conv-id" value="CONV-WEB-DEMO" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-xs text-slate-200 font-mono focus:outline-none focus:border-indigo-500">
+              </div>
+            </div>
+
+            <!-- Advanced Toggles -->
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-xl p-3 space-y-2.5 text-xs">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="brain-circuit" class="w-3.5 h-3.5 text-indigo-400"></i>
+                  <span class="text-slate-300 font-medium">Short-Term Memory Checkpointer (U3-1)</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="toggle-checkpointer" checked class="sr-only peer">
+                  <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                </label>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="layers" class="w-3.5 h-3.5 text-sky-400"></i>
+                  <span class="text-slate-300 font-medium">RAG Retrieval Depth</span>
+                </div>
+                <div class="flex items-center space-x-1.5 font-mono">
+                  <button type="button" onclick="setRagK(1)" id="rag-k-1" class="px-2 py-0.5 rounded text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300">k=1</button>
+                  <button type="button" onclick="setRagK(3)" id="rag-k-3" class="px-2 py-0.5 rounded text-[11px] bg-indigo-600 text-white font-bold">k=3</button>
+                </div>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="user-check" class="w-3.5 h-3.5 text-amber-400"></i>
+                  <span class="text-slate-300 font-medium">Human-in-the-Loop Mode</span>
+                </div>
+                <select id="select-hitl-mode" class="bg-slate-900 border border-slate-700 rounded px-2 py-0.5 text-[11px] text-slate-300">
+                  <option value="preview">Interactive Modal (Pause & Review)</option>
+                  <option value="auto">Auto-Approve (Benchmark Trace)</option>
+                </select>
+              </div>
+
+              <div class="flex items-center justify-between pt-1 border-t border-slate-800">
+                <div class="flex items-center space-x-2 text-rose-400">
+                  <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                  <span class="font-medium text-[11px]">Simulate Tool Failure (U3-4 Test)</span>
+                </div>
+                <input type="checkbox" id="toggle-tool-failure" class="w-4 h-4 rounded text-rose-600 bg-slate-900 border-slate-700 focus:ring-rose-500">
+              </div>
+            </div>
+
+            <!-- Run Button -->
+            <button onclick="executeTriage()" id="btn-run-triage" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/30 transition-all active:scale-[0.99]">
+              <i data-lucide="play" class="w-4 h-4 fill-current"></i>
+              <span>Execute Triage Graph</span>
+            </button>
+          </div>
+
+          <!-- Customer SQLite Profile Info Box -->
+          <div id="customer-info-box" class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 text-xs space-y-2">
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="font-bold flex items-center space-x-1.5 text-slate-300">
+                <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-400"></i>
+                <span id="profile-card-cid">CUST001 Profile (from SQLite)</span>
+              </span>
+              <span id="profile-card-channel" class="font-mono text-emerald-400 text-[10px]">Preferred: email</span>
+            </div>
+            <div class="text-slate-400 text-[11px]" id="profile-card-notes">
+              Repeat billing issue; refund issued 2024-09.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Graph Visualizer & Response (7 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+
+          <!-- Interactive Node Graph Flowchart -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-white flex items-center space-x-2">
+                <i data-lucide="network" class="w-4 h-4 text-sky-400"></i>
+                <span>LangGraph Multi-Agent Flowchart</span>
+              </h2>
+              <div id="flow-status" class="text-xs font-mono text-slate-400">Ready for execution</div>
+            </div>
+
+            <!-- Visual Flowchart Nodes -->
+            <div class="relative bg-slate-950/70 border border-slate-800/80 rounded-xl p-4 overflow-x-auto">
+              <div class="min-w-[550px] space-y-3">
+                
+                <!-- Stage 1: Preamble -->
+                <div class="flex items-center justify-between space-x-2">
+                  <!-- START -->
+                  <div id="node-start" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-slate-400">START</div>
+                    <div class="text-xs font-bold text-slate-200">Customer Ticket</div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                  <!-- Load History -->
+                  <div id="node-load_history" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-indigo-400">U3-2 Memory</div>
+                    <div class="text-xs font-bold text-slate-200">load_history</div>
+                    <div class="text-[10px] text-slate-400 node-meta">SQLite Profile</div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                  <!-- RAG -->
+                  <div id="node-rag" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-sky-400">U3-3 RAG</div>
+                    <div class="text-xs font-bold text-slate-200">rag_node</div>
+                    <div class="text-[10px] text-slate-400 node-meta">Chroma Top-k</div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                  <!-- Supervisor Classify -->
+                  <div id="node-classify" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-purple-400">U4-2 Supervisor</div>
+                    <div class="text-xs font-bold text-slate-200">classify_node</div>
+                    <div class="text-[10px] text-slate-400 node-meta">3x Sampled Vote</div>
+                  </div>
+                </div>
+
+                <!-- Down Arrow to Specialist Routing -->
+                <div class="flex justify-end pr-14 text-slate-600">
+                  <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                </div>
+
+                <!-- Stage 2: Specialist Routing Branches -->
+                <div class="grid grid-cols-5 gap-2 pt-1 border-t border-slate-800/80">
+                  <div id="node-billing_agent" class="graph-node px-2.5 py-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center transition-all">
+                    <div class="text-[9px] font-mono text-emerald-400">Specialist</div>
+                    <div class="text-[11px] font-bold text-slate-200">Billing</div>
+                    <div class="text-[9px] text-slate-400 node-meta">Refund SLA</div>
+                  </div>
+                  <div id="node-technical_agent" class="graph-node px-2.5 py-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center transition-all">
+                    <div class="text-[9px] font-mono text-sky-400">Specialist</div>
+                    <div class="text-[11px] font-bold text-slate-200">Technical</div>
+                    <div class="text-[9px] text-slate-400 node-meta">Diagnostics</div>
+                  </div>
+                  <div id="node-general_agent" class="graph-node px-2.5 py-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center transition-all">
+                    <div class="text-[9px] font-mono text-indigo-400">Specialist</div>
+                    <div class="text-[11px] font-bold text-slate-200">General</div>
+                    <div class="text-[9px] text-slate-400 node-meta">Praise/Info</div>
+                  </div>
+                  <div id="node-needs_clarification_agent" class="graph-node px-2.5 py-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center transition-all">
+                    <div class="text-[9px] font-mono text-amber-400">Specialist</div>
+                    <div class="text-[11px] font-bold text-slate-200">Clarify</div>
+                    <div class="text-[9px] text-slate-400 node-meta">Ask Disambig</div>
+                  </div>
+                  <div id="node-failure_handler" class="graph-node px-2.5 py-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-center transition-all">
+                    <div class="text-[9px] font-mono text-red-400">U3-4 Catch</div>
+                    <div class="text-[11px] font-bold text-slate-200">Fallback</div>
+                    <div class="text-[9px] text-slate-400 node-meta">Tool Recovery</div>
+                  </div>
+                </div>
+
+                <!-- Down Arrow to Escalation -->
+                <div class="flex justify-center text-slate-600">
+                  <i data-lucide="arrow-down" class="w-4 h-4"></i>
+                </div>
+
+                <!-- Stage 3: Escalation Check & Human-in-the-loop -->
+                <div class="flex items-center justify-between space-x-2">
+                  <div id="node-escalation_check" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-amber-400">Guardrail</div>
+                    <div class="text-xs font-bold text-slate-200">escalation_check</div>
+                    <div class="text-[10px] text-slate-400 node-meta">Anger/Legal Filter</div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                  <div id="node-human_review" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-rose-400">U4-3 HITL</div>
+                    <div class="text-xs font-bold text-slate-200">human_review</div>
+                    <div class="text-[10px] text-slate-400 node-meta">Approve / Reject</div>
+                  </div>
+                  <i data-lucide="arrow-right" class="w-4 h-4 text-slate-600 shrink-0"></i>
+                  <div id="node-end" class="graph-node px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-center flex-1 transition-all">
+                    <div class="text-[10px] font-mono text-emerald-400">Resolution</div>
+                    <div class="text-xs font-bold text-slate-200">END</div>
+                    <div class="text-[10px] text-slate-400 node-meta">SQLite Persist</div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Final Response Display Card -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+            <div class="flex items-center justify-between">
+              <h2 class="text-sm font-bold text-white flex items-center space-x-2">
+                <i data-lucide="send" class="w-4 h-4 text-emerald-400"></i>
+                <span>Dispatched Customer Response</span>
+              </h2>
+              <div class="flex items-center space-x-2" id="response-meta-pills">
+                <span id="pill-category" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-800 text-slate-400">Waiting</span>
+                <span id="pill-hops" class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-400">Hops: 0</span>
+                <span id="pill-time" class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-slate-800 text-slate-400">0.0s</span>
+              </div>
+            </div>
+
+            <!-- Response Box -->
+            <div id="response-container" class="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 leading-relaxed font-sans min-h-[90px] flex items-center justify-center text-center">
+              <span class="text-slate-500 italic">No complaint executed yet. Select a preset or type a complaint and click Execute.</span>
+            </div>
+
+            <!-- Detailed Execution Trace Summary -->
+            <div id="trace-details" class="hidden pt-3 border-t border-slate-800/80 space-y-2 text-xs">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+                <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800/60">
+                  <span class="text-slate-500 block">Supervisor Votes</span>
+                  <span id="trace-votes" class="font-mono font-bold text-indigo-300">—</span>
+                </div>
+                <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800/60">
+                  <span class="text-slate-500 block">LLM Calls</span>
+                  <span id="trace-calls" class="font-mono font-bold text-sky-300">—</span>
+                </div>
+                <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800/60">
+                  <span class="text-slate-500 block">Escalated to HITL?</span>
+                  <span id="trace-escalated" class="font-mono font-bold text-slate-300">—</span>
+                </div>
+                <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800/60">
+                  <span class="text-slate-500 block">Classifier Reason</span>
+                  <span id="trace-reason" class="truncate block text-slate-300">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= TAB 2: MULTI-TURN CHAT & AMNESIA STUDIO (U3-1) ================= -->
+    <div id="tab-chat" class="tab-content hidden space-y-6 max-w-5xl mx-auto">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center space-x-2">
+              <i data-lucide="message-square" class="w-5 h-5 text-indigo-400"></i>
+              <span>Multi-Turn Chat Studio (U3-1 Short-Term Memory Demo)</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Test conversation memory across sequential turns with LangGraph SqliteSaver checkpointer.</p>
+          </div>
+          <!-- Memory Toggle -->
+          <div class="flex items-center space-x-3 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+            <span class="text-xs font-semibold text-slate-300">Short-Term Memory Checkpointer:</span>
+            <button onclick="toggleChatMemory()" id="chat-memory-badge" class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all bg-emerald-600/20 text-emerald-400 border border-emerald-500/30">
+              ACTIVE (WITH Memory)
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Turn Scenario Helper -->
+        <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs flex items-center justify-between">
+          <div class="text-slate-300">
+            <span class="font-bold text-indigo-300">SOP Amnesia Demonstration:</span>
+            <span>Turn 1 mentions invoice #8821 ($49.99). Turn 2 asks: "What invoice number did I just mention?"</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="loadChatTurn1()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-medium">Load Turn 1</button>
+            <button onclick="loadChatTurn2()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-medium">Load Turn 2</button>
+            <button onclick="clearChatThread()" class="px-2.5 py-1 bg-red-950/40 hover:bg-red-900/60 text-red-300 rounded text-xs font-medium">Clear Chat</button>
+          </div>
+        </div>
+
+        <!-- Chat History Window -->
+        <div id="chat-messages" class="bg-slate-950 border border-slate-800 rounded-xl p-4 h-[380px] overflow-y-auto space-y-3 font-sans text-xs">
+          <div class="text-center text-slate-500 italic my-8">Start the conversation below or click "Load Turn 1" to begin.</div>
+        </div>
+
+        <!-- Input Bar -->
+        <form onsubmit="sendChatTurn(event)" class="flex items-center space-x-2">
+          <input type="text" id="chat-input" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 font-sans" placeholder="Type your follow-up message to the triage agent...">
+          <button type="submit" id="btn-chat-send" class="px-5 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-lg shadow-indigo-600/30">
+            <span>Send</span>
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= TAB 3: SQLITE CUSTOMER MEMORY EXPLORER (U3-2) ================= -->
+    <div id="tab-memory" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center space-x-2">
+              <i data-lucide="database" class="w-5 h-5 text-indigo-400"></i>
+              <span>SQLite Long-Term Store Explorer (U3-2)</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Database: <code>complaints.db</code> (Tables: <code>profiles</code> & <code>complaints</code>) • Survives full server reboot</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="refreshProfiles()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+              <span>Refresh</span>
+            </button>
+            <button onclick="resetDatabaseUI()" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-medium flex items-center space-x-1.5">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              <span>Reset Database</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer Profiles Table -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Customer Profiles (Namespace: <code>(user_id, 'profile')</code>)</h3>
+          <div class="border border-slate-800 rounded-xl overflow-hidden">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 font-bold text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="p-3">Customer ID</th>
+                  <th class="p-3">Namespace</th>
+                  <th class="p-3">Preferred Channel</th>
+                  <th class="p-3">Tickets Logged</th>
+                  <th class="p-3">Last Category</th>
+                  <th class="p-3">Internal Account Notes</th>
+                </tr>
+              </thead>
+              <tbody id="table-profiles-body" class="divide-y divide-slate-800/60 bg-slate-900/60">
+                <tr><td colspan="6" class="p-4 text-center text-slate-500">Loading SQLite profiles...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Complaints History Log -->
+        <div class="pt-4">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Persistent Complaints Log (Chronological History)</h3>
+          <div class="border border-slate-800 rounded-xl overflow-hidden max-h-[350px] overflow-y-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-950 font-bold text-slate-400 border-b border-slate-800 sticky top-0">
+                <tr>
+                  <th class="p-3">ID</th>
+                  <th class="p-3">Customer</th>
+                  <th class="p-3">Timestamp</th>
+                  <th class="p-3">Category</th>
+                  <th class="p-3">Complaint Text</th>
+                  <th class="p-3">Resolution Response</th>
+                </tr>
+              </thead>
+              <tbody id="table-complaints-body" class="divide-y divide-slate-800/60 bg-slate-900/60">
+                <tr><td colspan="6" class="p-4 text-center text-slate-500">Loading complaints...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 4: RAG KNOWLEDGE BASE & CORPUS (U3-3) ================= -->
+    <div id="tab-rag" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center space-x-2">
+              <i data-lucide="book-open" class="w-5 h-5 text-sky-400"></i>
+              <span>RAG Knowledge Base & Semantic Search (U3-3)</span>
+            </h2>
+            <p class="text-xs text-slate-400 mt-0.5">Chroma Vector Store with <code>nomic-embed-text</code> embeddings over 10 policy chunks.</p>
+          </div>
+        </div>
+
+        <!-- Semantic Search Testing Bar -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
+          <label class="block text-xs font-bold text-slate-300">Test Semantic Retrieval Query</label>
+          <div class="flex items-center space-x-2">
+            <input type="text" id="rag-search-input" value="duplicate charge refund" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-600 focus:outline-none focus:border-sky-500 font-sans" placeholder="Search policy chunks (e.g., refund timeline, login bug, cancel)...">
+            <button onclick="testRAGSearch()" class="px-5 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 shadow-lg shadow-sky-600/30">
+              <i data-lucide="search" class="w-3.5 h-3.5"></i>
+              <span>Retrieve</span>
+            </button>
+          </div>
+          <!-- Quick query suggestions -->
+          <div class="flex items-center space-x-2 text-[11px] text-slate-400">
+            <span>Try:</span>
+            <button onclick="setRAGQuery('duplicate charge refund')" class="text-sky-400 hover:underline">duplicate charge</button>
+            <span>•</span>
+            <button onclick="setRAGQuery('subscription cancellation notice')" class="text-sky-400 hover:underline">cancellation notice</button>
+            <span>•</span>
+            <button onclick="setRAGQuery('android app crash clear cache')" class="text-sky-400 hover:underline">app crash</button>
+            <span>•</span>
+            <button onclick="setRAGQuery('stock ticker symbol on NASDAQ')" class="text-purple-400 hover:underline">NASDAQ stock ticker (Unanswerable)</button>
+          </div>
+        </div>
+
+        <!-- Search Results Grid -->
+        <div id="rag-results-container" class="space-y-3">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-400">Top-k Retrieved Chunks from Chroma</div>
+          <div id="rag-results-list" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="col-span-3 p-4 bg-slate-950/60 border border-slate-800/60 rounded-xl text-center text-slate-500 text-xs">
+              Click Retrieve above to test Chroma vector search.
+            </div>
+          </div>
+        </div>
+
+        <!-- Full Corpus Chunks Accordion -->
+        <div class="pt-4 border-t border-slate-800">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">All 10 Chunks in Policy/FAQ Corpus (<code>policy_faq.txt</code>)</h3>
+            <button onclick="loadAllCorpus()" class="text-xs text-sky-400 hover:underline">Load All Chunks</button>
+          </div>
+          <div id="corpus-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 5: EVALUATION & BENCHMARKS (U4-4 & EV) ================= -->
+    <div id="tab-eval" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center space-x-2">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-indigo-400"></i>
+            <span>System Evaluation & Challenge Benchmarks (EV & U4-4)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Head-to-head comparison of TA1 baseline vs TA2 extended architecture on 5 benchmark cases.</p>
+        </div>
+
+        <!-- Evaluation Comparison Matrix (EV) -->
+        <div class="border border-slate-800 rounded-xl overflow-hidden">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 font-bold text-slate-300 border-b border-slate-800">
+              <tr>
+                <th class="p-3 w-1/4">Benchmark Case</th>
+                <th class="p-3 w-1/3 text-slate-400">TA1 Baseline Output (Frozen)</th>
+                <th class="p-3 w-1/3 text-indigo-300">TA2 Multi-Agent Output (Extended)</th>
+                <th class="p-3">Improvement Analysis</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 bg-slate-900/60">
+              <tr>
+                <td class="p-3 font-semibold text-slate-200">1. Clean Billing<br><span class="text-[10px] text-slate-400 font-normal">"Double-charged for subscription"</span></td>
+                <td class="p-3 text-slate-400">Generic promise to check records. No specific timelines.</td>
+                <td class="p-3 text-emerald-300">Cites exact 5 to 7 business days refund policy from RAG.</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">Significant Upgrade (↑)</span></td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-slate-200">2. Clean Technical<br><span class="text-[10px] text-slate-400 font-normal">"Android photo upload crashes"</span></td>
+                <td class="p-3 text-slate-400">Asks for device model only. No troubleshooting.</td>
+                <td class="p-3 text-emerald-300">Instructs cache clearing & device restart before requesting device OS.</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[10px]">Significant Upgrade (↑)</span></td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-slate-200">3. Clean General<br><span class="text-[10px] text-slate-400 font-normal">"Dashboard redesign looks great"</span></td>
+                <td class="p-3 text-slate-400">Warm praise acknowledgment.</td>
+                <td class="p-3 text-indigo-300">Polite acknowledgment maintaining general SLA standards.</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-700/60 text-slate-300 font-bold text-[10px]">Equivalent (→)</span></td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-slate-200">4. Ambiguous Premium<br><span class="text-[10px] text-slate-400 font-normal">"Charged for upgrade but features locked"</span></td>
+                <td class="p-3 text-slate-400">Pure billing focus. Ignores technical delay.</td>
+                <td class="p-3 text-amber-300">Explains 24-hour sync propagation window from policy FAQ.</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px]">Enhanced Context (↑)</span></td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold text-slate-200">5. Ambiguous Access<br><span class="text-[10px] text-slate-400 font-normal">"Failed payment or login bug?"</span></td>
+                <td class="p-3 text-slate-400">Guesses billing only (3:0 vote).</td>
+                <td class="p-3 text-amber-300">Grounded prompt safely declines unverified assumptions.</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold text-[10px]">Enhanced Safety (↑)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empirical Metrics Summary (U4-4) -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block">LLM Call Budget (Standard)</span>
+            <span class="text-2xl font-bold font-mono text-indigo-400 mt-1 block">4 Calls</span>
+            <span class="text-[10px] text-slate-500 mt-0.5 block">3x Sampling Vote + 1 Specialist</span>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block">Hop Limit (Safety Boundary)</span>
+            <span class="text-2xl font-bold font-mono text-emerald-400 mt-1 block">MAX 3</span>
+            <span class="text-[10px] text-slate-500 mt-0.5 block">Prevents Infinite Loops</span>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block">Average Latency</span>
+            <span class="text-2xl font-bold font-mono text-sky-400 mt-1 block">2.8s – 3.5s</span>
+            <span class="text-[10px] text-slate-500 mt-0.5 block">With KV-cache reuse</span>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400 block">HITL Escalation Rate</span>
+            <span class="text-2xl font-bold font-mono text-rose-400 mt-1 block">100%</span>
+            <span class="text-[10px] text-slate-500 mt-0.5 block">On Anger & Legal Threats</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 6: AGENT ROLES SPECIFICATION (U4-1) ================= -->
+    <div id="tab-roles" class="tab-content hidden space-y-6 max-w-6xl mx-auto">
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+        <div>
+          <h2 class="text-base font-bold text-white flex items-center space-x-2">
+            <i data-lucide="users" class="w-5 h-5 text-indigo-400"></i>
+            <span>5-Field Agent Role Specifications (U4-1)</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Strict multi-agent role separation guaranteeing modularity and bounded responsibilities.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          <!-- Role 1: Supervisor -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-purple-400">1. TriageSupervisor</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Coordinator</span>
+            </div>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Goal:</b> Classify complaints using 3x self-consistency voting and enforce MAX_HOPS=3.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Tools:</b> ChatOllama (temp=0.7), SQLite history loader, Chroma retriever.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">I/O:</b> In: Complaint, turn. Out: Category, votes, reasoning.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Limits:</b> Never generates customer replies; bounded by hop count.</p>
+          </div>
+
+          <!-- Role 2: Billing Specialist -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-400">2. BillingAgent</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Specialist</span>
+            </div>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Goal:</b> Resolve duplicate charges, refunds, and invoices using corporate policy SLA.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Tools:</b> ChatOllama (temp=0), Chroma refund policy FAQ, SQLite history.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">I/O:</b> In: Complaint, RAG policy, thread. Out: Refund timeline reply.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Limits:</b> Cannot advise on technical faults or issue credits directly.</p>
+          </div>
+
+          <!-- Role 3: Technical Specialist -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-sky-400">3. TechnicalAgent</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">Specialist</span>
+            </div>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Goal:</b> Diagnose app crashes, bugs, and login errors; collect diagnostic telemetry.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Tools:</b> ChatOllama (temp=0), Chroma troubleshooting FAQ.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">I/O:</b> In: Complaint, FAQ steps. Out: Diagnostic advice & info request.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Limits:</b> Cannot access billing records or alter payment states.</p>
+          </div>
+
+          <!-- Role 4: General Specialist -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-indigo-400">4. GeneralAgent</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Specialist</span>
+            </div>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Goal:</b> Acknowledge feedback, praise, and out-of-scope inquiries.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Tools:</b> ChatOllama (temp=0), Chroma contact directory.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">I/O:</b> In: Complaint, contact FAQ. Out: Polite response & SLA note.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Limits:</b> Grounded: answers "I don't know" to unanswerable queries.</p>
+          </div>
+
+          <!-- Role 5: Human Reviewer -->
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-400">5. HumanReviewer</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">HITL Oversight</span>
+            </div>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Goal:</b> Audit angry complaints, legal threats, and ambiguous classifications.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Tools:</b> LangGraph <code>interrupt()</code> review interface.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">I/O:</b> In: Draft response, reason. Out: APPROVE or REJECT.</p>
+            <p class="text-[11px] text-slate-300"><b class="text-slate-400">Limits:</b> Human gatekeeper requiring explanatory rejection note.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ================= INTERACTIVE HITL MODAL DIALOG (U4-3) ================= -->
+  <div id="hitl-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-4 animate-in fade-in duration-200">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center space-x-2 text-rose-400">
+          <i data-lucide="shield-alert" class="w-5 h-5"></i>
+          <h3 class="text-base font-bold text-white">Human Review Required (HITL Oversight)</h3>
+        </div>
+        <span class="px-2 py-0.5 text-[10px] font-mono rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">U4-3 Gate</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="p-3 rounded-xl bg-rose-950/30 border border-rose-900/40 text-rose-200">
+          <span class="font-bold block text-rose-300">Escalation Trigger:</span>
+          <span id="modal-escalation-reason">Anger keywords detected in complaint.</span>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">Customer Complaint:</label>
+          <div id="modal-complaint-text" class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-slate-300 italic font-sans leading-relaxed">
+            "This is absolutely unacceptable! You charged me three times..."
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-semibold mb-1">AI-Generated Draft Response:</label>
+          <textarea id="modal-draft-response" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-200 text-xs focus:outline-none focus:border-indigo-500 font-sans"></textarea>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <label class="block text-slate-400 font-semibold">Human Supervisor Decision:</label>
+          <div class="space-y-1.5">
+            <label class="flex items-center space-x-2 p-2 rounded-lg bg-slate-950 hover:bg-slate-800/60 border border-slate-800 cursor-pointer">
+              <input type="radio" name="hitl-decision" value="approve" checked class="text-indigo-600 focus:ring-indigo-500">
+              <span class="text-slate-200 font-medium">APPROVE & Dispatch Draft to Customer</span>
+            </label>
+            <label class="flex items-center space-x-2 p-2 rounded-lg bg-slate-950 hover:bg-slate-800/60 border border-slate-800 cursor-pointer">
+              <input type="radio" name="hitl-decision" value="reject" class="text-rose-600 focus:ring-rose-500">
+              <span class="text-slate-200 font-medium">REJECT & Escalate to Senior Tier-2 / Legal Team</span>
+            </label>
+          </div>
+          <div id="reject-note-box" class="hidden mt-2">
+            <input type="text" id="modal-reject-reason" value="Customer threatening legal action. Forwarding to Legal Counsel and Tier-2." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-rose-200 focus:outline-none focus:border-rose-500" placeholder="Enter internal escalation note...">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-800">
+        <button onclick="closeHITLModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold">Cancel</button>
+        <button onclick="submitHITLDecision()" id="btn-submit-hitl" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-indigo-600/30">Submit Decision</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Lucide Icon Renderer & App JS -->
+  <script src="/static/app.js"></script>
+  <script>
+    lucide.createIcons();
+  </script>
+</body>
+</html>

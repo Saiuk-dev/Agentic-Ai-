@@ -29,11 +29,11 @@
 
   Vote breakdown     -> billing:3
   Classified as      -> billing
-  Classifier reason  -> "I was charged for premium upgrade but the features never unlocked." This directly relates to a billing issue as it involves payment for a service that did not provide the expected features.
+  Classifier reason  -> "I was charged for premium upgrade but the features never unlocked." This sentence indicates a billing issue as the customer is disputing the validity of the charge for a service they did not receive.
   Escalated          -> True  |  Human decision: APPROVE
   Hop count          -> 1
   LLM calls          -> 4
-  Wall-clock (s)     -> 3.7
+  Wall-clock (s)     -> 5.9
 
   FINAL RESPONSE:
   Thank you for bringing this to our attention. I will first check the transaction history to verify if there is a duplicate charge. According to our Duplicate Charge Refund Policy, we will process your refund within 5 to 7 business days and will credit it back to your original payment method. Please provide the invoice number or amount if you have it, so we can proceed with the refund.

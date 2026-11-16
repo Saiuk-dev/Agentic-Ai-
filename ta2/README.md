@@ -21,6 +21,17 @@ cd ta2
 python seed_db.py && python rag_setup.py && python triage_graph_ta2.py --auto-approve 2>&1 | tee ../traces/ta2_traces.txt
 ```
 
+## Interactive Web UI (Tailwind CSS)
+
+Launch the full interactive visual web interface with real-time graph animations, HITL modals, and memory inspector:
+
+```bash
+# Option 1: Double-click start_web.bat in the root folder
+# Option 2: From terminal:
+python run_ui.py
+# Open http://localhost:8000 in your browser
+```
+
 ## Step-by-step
 
 ```bash
