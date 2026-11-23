@@ -85,7 +85,7 @@ llm_sampling = ChatOllama(model="qwen2.5:3b", temperature=0.7)
 # ---------------------------------------------------------------------------
 # State
 # ---------------------------------------------------------------------------
-class TriageState(TypedDict):
+class TriageState(TypedDict, total=False):
     # Input
     complaint:        str
     customer_id:      str
@@ -93,7 +93,7 @@ class TriageState(TypedDict):
     rag_k:            int           # allow per-run override for k=1 vs k=3 demo
 
     # Short-term Thread Memory [U3-1]
-    thread_history:   Annotated[list[str], operator.add]
+    thread_history:   list[str]
 
     # Memory & RAG
     customer_history: str           # [U3-2] from SQLite
@@ -153,11 +153,15 @@ def load_history_node(state: TriageState) -> TriageState:
     print(f"  [load_history_node] customer={cid} | history_loaded={bool(history)}")
     
     # Ingest the new turn into thread_history (persisted by checkpointer)
-    new_turn = [f"Customer: {state['complaint']}"] if state.get("complaint") else []
+    cur_history = list(state.get("thread_history") or [])
+    if state.get("complaint"):
+        cur_history.append(f"Customer: {state['complaint']}")
+    cur_history = cur_history[-10:]
+
     return {
         **state,
         "customer_history": full_history,
-        "thread_history": new_turn,
+        "thread_history": cur_history,
     }
 
 
@@ -285,11 +289,14 @@ def failure_handler(state: TriageState) -> TriageState:
         "A support agent will review your complaint and respond within 24 hours. "
         f"[Error details (internal): {state['tool_error']}]"
     )
+    cur_history = list(state.get("thread_history") or [])
+    cur_history.append(f"Agent (Fallback): {safe_response}")
+    cur_history = cur_history[-10:]
     return {
         **state,
         "category": "general",
         "response": safe_response,
-        "thread_history": [f"Agent (Fallback): {safe_response}"],
+        "thread_history": cur_history,
         "escalated": False,
         "escalation_reason": "",
         "human_decision": "",
@@ -341,10 +348,13 @@ def billing_agent(state: TriageState) -> TriageState:
     )
     reply = llm.invoke(prompt).content.strip()
     print("  [billing_agent] Response generated.")
+    cur_history = list(state.get("thread_history") or [])
+    cur_history.append(f"Agent (Billing): {reply}")
+    cur_history = cur_history[-10:]
     return {
         **state,
         "response": reply,
-        "thread_history": [f"Agent (Billing): {reply}"],
+        "thread_history": cur_history,
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
 
@@ -359,10 +369,13 @@ def technical_agent(state: TriageState) -> TriageState:
     )
     reply = llm.invoke(prompt).content.strip()
     print("  [technical_agent] Response generated.")
+    cur_history = list(state.get("thread_history") or [])
+    cur_history.append(f"Agent (Technical): {reply}")
+    cur_history = cur_history[-10:]
     return {
         **state,
         "response": reply,
-        "thread_history": [f"Agent (Technical): {reply}"],
+        "thread_history": cur_history,
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
 
@@ -377,10 +390,13 @@ def general_agent(state: TriageState) -> TriageState:
     )
     reply = llm.invoke(prompt).content.strip()
     print("  [general_agent] Response generated.")
+    cur_history = list(state.get("thread_history") or [])
+    cur_history.append(f"Agent (General): {reply}")
+    cur_history = cur_history[-10:]
     return {
         **state,
         "response": reply,
-        "thread_history": [f"Agent (General): {reply}"],
+        "thread_history": cur_history,
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
 
@@ -396,10 +412,13 @@ def needs_clarification_agent(state: TriageState) -> TriageState:
     )
     reply = llm.invoke(prompt).content.strip()
     print("  [needs_clarification_agent] Clarification question generated.")
+    cur_history = list(state.get("thread_history") or [])
+    cur_history.append(f"Agent (Clarification): {reply}")
+    cur_history = cur_history[-10:]
     return {
         **state,
         "response": reply,
-        "thread_history": [f"Agent (Clarification): {reply}"],
+        "thread_history": cur_history,
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
 
@@ -585,7 +604,6 @@ def _init_state(
         customer_id=customer_id,
         conversation_id=conversation_id,
         rag_k=rag_k,
-        thread_history=[],
         customer_history="",
         rag_context="",
         category="",
