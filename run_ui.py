@@ -36,18 +36,20 @@ def main():
 
     check_and_start_ollama()
 
+    port = int(os.environ.get("PORT", 8000))
+
     import uvicorn
     # Open browser after a slight pause
     def open_browser():
         time.sleep(1.5)
-        webbrowser.open("http://localhost:8000")
+        webbrowser.open(f"http://localhost:{port}")
 
     import threading
     threading.Thread(target=open_browser, daemon=True).start()
 
-    print("\n  Starting Web Server on: http://localhost:8000")
+    print(f"\n  Starting Web Server on: http://localhost:{port}")
     print("  Press Ctrl+C to stop.\n")
-    uvicorn.run("server:app", app_dir=WEB_DIR, host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("server:app", app_dir=WEB_DIR, host="0.0.0.0", port=port, reload=False)
 
 if __name__ == "__main__":
     main()

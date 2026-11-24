@@ -400,8 +400,9 @@ def serve_index():
 
 if __name__ == "__main__":
     import uvicorn
+    port = int(os.environ.get("PORT", 8000))
     print("\n" + "=" * 70)
     print("  CUSTOMER COMPLAINT TRIAGE GRAPH — INTERACTIVE WEB INTERFACE")
-    print("  Running on: http://localhost:8000")
+    print(f"  Running on: http://0.0.0.0:{port}")
     print("=" * 70 + "\n")
-    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("server:app", host="0.0.0.0", port=port, reload=False)
